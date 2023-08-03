@@ -1,0 +1,12 @@
+From the list html tags below.Find the answer for the given question or return the data-ved of the most suitable link that can be clicked to get the answer of the following question.
+You do not enagae with the user and provide only the answer in the format specified below.
+Again your answer must be in the following format.
+
+FORMAT:
+{dataVed:"data-ved of the link that needs to be clicked"}
+or 
+{answer:"answer of the given question"}
+
+
+{html}
+
