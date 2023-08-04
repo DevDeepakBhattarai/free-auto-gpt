@@ -3,11 +3,13 @@ import puppeteer from "puppeteer-extra";
 import recaptcha from "puppeteer-extra-plugin-recaptcha";
 import stealth from "puppeteer-extra-plugin-stealth";
 import { askGPT } from "./askGPT";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { promptTemplate } from "../utils/promptTemplate";
 import { sleep } from "../utils/sleep";
 import { parseLinks } from "../utils/parseLinks";
 import { openBrowser } from "../utils/openBrowser";
+import { splitText } from "../utils/splitText";
+const CHUNK_SIZE = 7000;
 puppeteer.use(recaptcha()).use(stealth());
 
 export async function recursiveAnswering(gptPage: Page, steps: string[]) {
@@ -65,6 +67,9 @@ async function doNextStep(
 ) {
   if ("dataVed" in response) {
     await page.click(`[data-ved="${response.dataVed}"]`);
+    const summary = await getWebsiteContent(page, gptPage, question);
+    console.log(summary);
+    writeFileSync("answer.txt", summary);
   }
 
   if ("answer" in response) {
@@ -74,4 +79,49 @@ ${JSON.stringify(response)}`;
     const answer = await askGPT(gptPage, prompt);
     console.log(answer);
   }
+}
+async function getWebsiteContent(
+  page: Page,
+  gptPage: Page,
+  question: string
+): Promise<string> {
+  const pageContent = await page.evaluate(() => {
+    const content = document.querySelector("main")?.innerText;
+    return content;
+  });
+  if (!pageContent) {
+    console.log("Not page content");
+    return "";
+  }
+  return summarize(pageContent, gptPage);
+}
+
+async function summarize(pageContent: string, gptPage: Page) {
+  var summary = "";
+  if (pageContent?.length < 16384) {
+    const templatePrompt = readFileSync("prompts/summaryPrompt.txt").toString();
+    const replacements = {
+      context: pageContent,
+    };
+    const prompt = promptTemplate(templatePrompt, replacements);
+    const summary = await askGPT(gptPage, prompt);
+    return summary;
+  }
+
+  summary = pageContent;
+  while (summary.length > 16384) {
+    const textArray = splitText(summary, CHUNK_SIZE);
+    for (const text in textArray) {
+      const templatePrompt = readFileSync(
+        "prompts/summaryPrompt.txt"
+      ).toString();
+      const replacements = {
+        context: text,
+      };
+      const prompt = promptTemplate(templatePrompt, replacements);
+      const summary_i = await askGPT(gptPage, prompt);
+      summary += summary_i;
+    }
+  }
+  return summary;
 }
