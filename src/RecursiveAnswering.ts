@@ -14,6 +14,7 @@ puppeteer.use(recaptcha()).use(stealth());
 
 export async function recursiveAnswering(gptPage: Page, steps: string[]) {
   var page;
+  var content;
   for (const step of steps) {
     if (step === "Open browser") page = await openBrowser();
     if (step.startsWith("Search")) {
@@ -26,10 +27,33 @@ export async function recursiveAnswering(gptPage: Page, steps: string[]) {
         await linkReader(page, gptPage, queryString);
       }
     }
+    if (step.startsWith("Goto") && page) {
+      const url = step.split("Goto ")[1].slice(1, -1);
+      await page.goto(url);
+      await sleep(1000);
+      content = await getWebsiteContent(page);
+    }
+
+    if (step.startsWith("Read")) {
+      const path = step.split("Read ")[1].slice(1, -1);
+      content = readFileSync(path).toString();
+    }
+
+    if (step.startsWith("Summarize") && content) {
+      const reasonToSummarize = step.split("Summarize ")[1].slice(1, -1);
+      const summary = await summarize(content, gptPage);
+      const prompt = `For the given question: ${reasonToSummarize}.Generate the answer in a well formatted way(In natural language) from the given context
+CONTEXT:
+${summary}`;
+      const answer = await askGPT(gptPage, prompt);
+      writeFileSync("answer.txt", answer);
+      writeFileSync("answer.txt", answer);
+      console.log(summary);
+    }
   }
 
   async function linkReader(page: Page, gptPage: Page, question: string) {
-    const html = await getPageContent(page);
+    const html = await getPageContentForInitialSearch(page);
     const templatePrompt = readFileSync("prompts/htmlPrompt.txt").toString();
     const replacements = {
       html: html,
@@ -47,7 +71,7 @@ export async function recursiveAnswering(gptPage: Page, steps: string[]) {
   }
 }
 
-async function getPageContent(page: Page) {
+async function getPageContentForInitialSearch(page: Page) {
   const title = await page.evaluate(() => {
     return document.title;
   });
@@ -67,9 +91,15 @@ async function doNextStep(
 ) {
   if ("dataVed" in response) {
     await page.click(`[data-ved="${response.dataVed}"]`);
-    const summary = await getWebsiteContent(page, gptPage, question);
-    console.log(summary);
-    writeFileSync("answer.txt", summary);
+    await page.waitForNavigation();
+    await sleep(2000);
+    const summary = await getWebPageSummary(page, gptPage);
+    const prompt = `For the given question: ${question}.Generate the answer in a well formatted way(In natural language) from the given context 
+Context:
+${summary}`;
+    const answer = await askGPT(gptPage, prompt);
+    writeFileSync("answer.txt", answer);
+    console.log(answer);
   }
 
   if ("answer" in response) {
@@ -77,14 +107,10 @@ async function doNextStep(
 Generate the answer in a well formatted way(In natural language) from the given object
 ${JSON.stringify(response)}`;
     const answer = await askGPT(gptPage, prompt);
-    console.log(answer);
+    writeFileSync("answer.txt", answer);
   }
 }
-async function getWebsiteContent(
-  page: Page,
-  gptPage: Page,
-  question: string
-): Promise<string> {
+async function getWebsiteContent(page: Page): Promise<string> {
   const pageContent = await page.evaluate(() => {
     const content = document.querySelector("main")?.innerText;
     return content;
@@ -93,6 +119,11 @@ async function getWebsiteContent(
     console.log("Not page content");
     return "";
   }
+  return pageContent;
+}
+
+async function getWebPageSummary(page: Page, gptPage: Page) {
+  const pageContent = await getWebsiteContent(page);
   return summarize(pageContent, gptPage);
 }
 

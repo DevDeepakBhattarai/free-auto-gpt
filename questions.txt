@@ -1,1 +1,1 @@
-["Open browser", "Search 'useAnimate hook of Framer Motion'", "Goto 'https://framer.com/api/motion/useanimate/'", "Summarize", "Display"]
+["Open browser", "Goto 'https://deepak-bhattarai.com.np'", "Summarize", "Display"]
