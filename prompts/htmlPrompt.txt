@@ -1,11 +1,10 @@
-From the list html tags below.Find the answer for the given question or return the data-ved of the most suitable link that can be clicked to get the answer of the following question.
-You do not enagae with the user and provide only the answer in the format specified below.
-Again your answer must be in the following format.
+Look at the content in between the tags of the given html tags and find the answer for the given question or return the data-ved attribute of the link whose content has the most similar keywords with the given quesiton.
+You do not enagae with the user and provide only the answer in the format specified below without any explanation or converstation.
 
 FORMAT:
-{dataVed:"data-ved of the link that needs to be clicked"}
+{"dataVed":"data-ved of the link that needs to be clicked"}
 or 
-{answer:"answer of the given question"}
+{"answer":"answer of the given question"}
 
 
 {html}

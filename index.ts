@@ -26,7 +26,7 @@ async function run() {
       questions = JSON.parse(`${questionString}`) as Array<string>;
       console.log(questions);
       try {
-        const answer = await recursiveAnswering(page, questions);
+        await recursiveAnswering(page, questions);
       } catch (e) {
         console.log(e);
       }

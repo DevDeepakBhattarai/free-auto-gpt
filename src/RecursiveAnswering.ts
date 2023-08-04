@@ -3,10 +3,11 @@ import puppeteer from "puppeteer-extra";
 import recaptcha from "puppeteer-extra-plugin-recaptcha";
 import stealth from "puppeteer-extra-plugin-stealth";
 import { askGPT } from "./askGPT";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync } from "fs";
 import { promptTemplate } from "../utils/promptTemplate";
 import { sleep } from "../utils/sleep";
-import cheerio, { Cheerio, load, Element, CheerioAPI, AnyNode } from "cheerio";
+import { parseLinks } from "../utils/parseLinks";
+import { openBrowser } from "../utils/openBrowser";
 puppeteer.use(recaptcha()).use(stealth());
 
 export async function recursiveAnswering(gptPage: Page, steps: string[]) {
@@ -19,35 +20,29 @@ export async function recursiveAnswering(gptPage: Page, steps: string[]) {
         await page.goto("https://www.google.com");
         await page.type("#APjFqb", queryString);
         await page.keyboard.press("Enter");
-
         await sleep(2000);
-        const html = await getPageContent(page);
-        const templatePrompt = readFileSync(
-          "prompts/htmlPrompt.txt"
-        ).toString();
-        const replacements = {
-          html: html,
-        };
-        const prompt = promptTemplate(templatePrompt, replacements);
-        const answer = await askGPT(gptPage, prompt);
-        return answer;
+        await linkReader(page, gptPage, queryString);
       }
     }
   }
-}
 
-async function openBrowser(): Promise<Page> {
-  const browser = await puppeteer.launch({
-    headless: false,
-  });
-
-  const page = await browser.newPage();
-
-  await page.setExtraHTTPHeaders({
-    "Accept-Language": "en-UK,en",
-  });
-  await page.goto("https://www.google.com");
-  return page;
+  async function linkReader(page: Page, gptPage: Page, question: string) {
+    const html = await getPageContent(page);
+    const templatePrompt = readFileSync("prompts/htmlPrompt.txt").toString();
+    const replacements = {
+      html: html,
+    };
+    const prompt = promptTemplate(templatePrompt, replacements);
+    console.log(prompt);
+    const answer = await askGPT(gptPage, prompt);
+    console.log(answer);
+    try {
+      const response = JSON.parse(`${answer}`);
+      await doNextStep(response, page, gptPage, question);
+    } catch (e) {
+      console.log("GPT did not give the answer in the correct format");
+    }
+  }
 }
 
 async function getPageContent(page: Page) {
@@ -59,45 +54,24 @@ async function getPageContent(page: Page) {
     return document.body.innerHTML;
   });
 
-  return "QUESTION: " + title + "\n\n" + "HTML" + "\n" + parseHTML(html);
+  return "QUESTION: " + title + "\n\n" + "HTML" + "\n" + parseLinks(html);
 }
 
-function parseHTML(html: string = "") {
-  const $ = load(html);
-  let formattedContent = "";
-
-  function getContent(element: Cheerio<Element>): string {
-    return element.length && element.text()
-      ? element.text().trim().substring(0, 200) + "..."
-      : "";
+async function doNextStep(
+  response: { dataVed: string } | { answer: string },
+  page: Page,
+  gptPage: Page,
+  question: string
+) {
+  if ("dataVed" in response) {
+    await page.click(`[data-ved="${response.dataVed}"]`);
   }
 
-  function formatElement(selector: string) {
-    $(selector).each((index, element) => {
-      element = element as Element;
-      const classname = element.attribs["classname"];
-      const role = element.attribs["role"];
-      const dataVed = element.attribs["data-ved"];
-      const content = getContent($(element as Element));
-      if (content.trim() !== "" && content.trim() !== "..." && dataVed)
-        formattedContent += `<${element.tagName} data-ved=${
-          element.attribs["data-ved"]
-        }  ${classname ? "className=" + classname : ""} ${
-          role ? "role=" + role : ""
-        }>${content.substring(0, 200)}</${element.tagName}>\n`;
-
-      if (element.tagName === "div") {
-        const content = getContent($(element as Element));
-        formattedContent += `<${element.tagName} ${
-          classname ? "className=" + classname : ""
-        } ${role ? "role=" + role : ""}>${content.substring(0, 200)}</${
-          element.tagName
-        }>\n`;
-      }
-    });
+  if ("answer" in response) {
+    const prompt = `For the given question: ${question}.
+Generate the answer in a well formatted way(In natural language) from the given object
+${JSON.stringify(response)}`;
+    const answer = await askGPT(gptPage, prompt);
+    console.log(answer);
   }
-  formatElement("div.ULSxyf:first-of-type");
-  formatElement("button");
-  formatElement("a");
-  return formattedContent;
 }

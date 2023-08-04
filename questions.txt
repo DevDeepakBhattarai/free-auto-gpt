@@ -1,1 +1,1 @@
-["Open browser", "Search 'Current president of USA'", "Parse html", "Display"]
+["Open browser", "Search 'useAnimate hook of Framer Motion'", "Goto 'https://framer.com/api/motion/useanimate/'", "Summarize", "Display"]
