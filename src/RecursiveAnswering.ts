@@ -11,8 +11,8 @@ import { openBrowser } from "../utils/openBrowser";
 import { splitText } from "../utils/splitText";
 import PdfParse from "pdf-parse";
 import { newGPTPage } from "./newGPTPage";
-
-const CHUNK_SIZE = 7000;
+import { execSync } from "child_process";
+const CHUNK_SIZE = 16000;
 
 puppeteer.use(recaptcha()).use(stealth());
 
@@ -62,31 +62,54 @@ export async function recursiveAnswering(gptPage: Page, steps: string[]) {
       console.log(content.length);
       const reasonToSummarize = step.split("Summarize ")[1].slice(1, -1);
       const summary = await summarize(content, gptPage);
-      const prompt = `For the given question: ${reasonToSummarize}.Generate the answer in a well formatted way(In natural language) from the given context
-CONTEXT:
-${summary}`;
+      const prompt = `For the given question:\n ${reasonToSummarize}. \nGenerate the answer in a well formatted way(In natural language) from the given context \n CONTEXT: \n ${summary}`;
       const answer = await askGPT(gptPage, prompt);
       writeFileSync("answer.txt", answer);
       console.log(summary);
     }
-  }
-
-  async function linkReader(page: Page, gptPage: Page, question: string) {
-    const html = await getPageContentForInitialSearch(page);
-    const templatePrompt = readFileSync("prompts/htmlPrompt.txt").toString();
-    const replacements = {
-      html: html,
-    };
-    const prompt = promptTemplate(templatePrompt, replacements);
-    console.log(prompt);
-    const answer = await askGPT(gptPage, prompt);
-    console.log(answer);
-    try {
-      const response = JSON.parse(`${answer}`);
-      await doNextStep(response, page, gptPage, question);
-    } catch (e) {
-      console.log("GPT did not give the answer in the correct format");
+    if (step.startsWith("Write python code")) {
+      const descriptionOfCode = step
+        .split("Write python code ")[1]
+        .slice(1, -1);
+      const templatePrompt = readFileSync(
+        "prompts/writeCodePrompt.txt"
+      ).toString();
+      const replacements = {
+        task: descriptionOfCode,
+      };
+      const prompt = promptTemplate(templatePrompt, replacements);
+      const answer = await askGPT(gptPage, prompt);
+      console.log(answer);
+      const copyCodeIndex = answer.indexOf("Copy code");
+      const extractedCode = answer.substring(
+        copyCodeIndex + "Copy code".length
+      );
+      writeFileSync("run.py", extractedCode);
+      try {
+        const stdout = execSync("python run.py");
+        console.log(stdout.toString());
+      } catch {
+        console.log("Something went wrong during the execution of program");
+      }
     }
+  }
+}
+
+async function linkReader(page: Page, gptPage: Page, question: string) {
+  const html = await getPageContentForInitialSearch(page);
+  const templatePrompt = readFileSync("prompts/htmlPrompt.txt").toString();
+  const replacements = {
+    html: html,
+  };
+  const prompt = promptTemplate(templatePrompt, replacements);
+  console.log(prompt);
+  const answer = await askGPT(gptPage, prompt);
+  console.log(answer);
+  try {
+    const response = JSON.parse(`${answer}`);
+    await doNextStep(response, page, gptPage, question);
+  } catch (e) {
+    console.log("GPT did not give the answer in the correct format");
   }
 }
 
@@ -161,7 +184,7 @@ async function summarize(pageContent: string, gptPage: Page) {
   summary = pageContent;
   while (summary.length > 16384) {
     const textArray = splitText(summary, CHUNK_SIZE);
-    console.log(textArray);
+    summary = "";
     for (const text of textArray) {
       const templatePrompt = readFileSync(
         "prompts/summaryPrompt.txt"
@@ -170,7 +193,6 @@ async function summarize(pageContent: string, gptPage: Page) {
         context: text,
       };
       const prompt = promptTemplate(templatePrompt, replacements);
-      console.log(prompt);
       const summary_i = await askGPT(gptPage, prompt);
       summary += summary_i;
     }

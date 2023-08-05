@@ -1,1 +1,1 @@
-["Read 'longnet.pdf'", "Summarize 'The content of the longnet.pdf'", "Display"]
+["Write python code 'to display the head of the test.csv file'", "Execute", "Display the result obtained"]
