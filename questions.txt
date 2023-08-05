@@ -1,1 +1,1 @@
-["Open browser", "Goto 'https://deepak-bhattarai.com.np'", "Summarize", "Display"]
+["Read 'longnet.pdf'", "Summarize 'The content of the longnet.pdf'", "Display"]

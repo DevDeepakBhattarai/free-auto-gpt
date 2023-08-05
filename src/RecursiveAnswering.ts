@@ -9,10 +9,15 @@ import { sleep } from "../utils/sleep";
 import { parseLinks } from "../utils/parseLinks";
 import { openBrowser } from "../utils/openBrowser";
 import { splitText } from "../utils/splitText";
+import PdfParse from "pdf-parse";
+import { newGPTPage } from "./newGPTPage";
+
 const CHUNK_SIZE = 7000;
+
 puppeteer.use(recaptcha()).use(stealth());
 
 export async function recursiveAnswering(gptPage: Page, steps: string[]) {
+  await newGPTPage(gptPage);
   var page;
   var content;
   for (const step of steps) {
@@ -35,18 +40,32 @@ export async function recursiveAnswering(gptPage: Page, steps: string[]) {
     }
 
     if (step.startsWith("Read")) {
-      const path = step.split("Read ")[1].slice(1, -1);
-      content = readFileSync(path).toString();
+      const filename = step.split("Read ")[1].slice(1, -1);
+      const fileExtension = filename.split(".")[1];
+      if (fileExtension === "pdf") {
+        try {
+          const dataBuffer = readFileSync(`inputFiles/${filename}`);
+          console.log(dataBuffer.length);
+          const { text } = await PdfParse(dataBuffer);
+          content = text;
+        } catch (e) {
+          console.log(e);
+          console.log("Error Happened");
+        }
+      }
+      if (fileExtension === "txt") {
+        content = readFileSync(`inputFiles/${filename}`).toString();
+      }
     }
 
     if (step.startsWith("Summarize") && content) {
+      console.log(content.length);
       const reasonToSummarize = step.split("Summarize ")[1].slice(1, -1);
       const summary = await summarize(content, gptPage);
       const prompt = `For the given question: ${reasonToSummarize}.Generate the answer in a well formatted way(In natural language) from the given context
 CONTEXT:
 ${summary}`;
       const answer = await askGPT(gptPage, prompt);
-      writeFileSync("answer.txt", answer);
       writeFileSync("answer.txt", answer);
       console.log(summary);
     }
@@ -142,7 +161,8 @@ async function summarize(pageContent: string, gptPage: Page) {
   summary = pageContent;
   while (summary.length > 16384) {
     const textArray = splitText(summary, CHUNK_SIZE);
-    for (const text in textArray) {
+    console.log(textArray);
+    for (const text of textArray) {
       const templatePrompt = readFileSync(
         "prompts/summaryPrompt.txt"
       ).toString();
@@ -150,6 +170,7 @@ async function summarize(pageContent: string, gptPage: Page) {
         context: text,
       };
       const prompt = promptTemplate(templatePrompt, replacements);
+      console.log(prompt);
       const summary_i = await askGPT(gptPage, prompt);
       summary += summary_i;
     }
