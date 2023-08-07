@@ -4,6 +4,7 @@ import { initializeApp } from "./src/initializeApp";
 import { promptTemplate } from "./utils/promptTemplate";
 import { recursiveAnswering } from "./src/RecursiveAnswering";
 import ps from "prompt-sync";
+
 const prompt = ps();
 async function run() {
   const [browser, page] = await initializeApp(false);
@@ -14,7 +15,7 @@ async function run() {
     if (userPrompt == ":q") break;
 
     const replacements = {
-      problem: userPrompt,
+      task: userPrompt,
     };
 
     const templatePrompt = readFileSync("prompts/planPrompt.txt").toString();
@@ -26,7 +27,7 @@ async function run() {
       questions = JSON.parse(`${questionString}`) as Array<string>;
       console.log(questions);
       try {
-        await recursiveAnswering(page, questions);
+        await recursiveAnswering(page, questions, userPrompt);
       } catch (e) {
         console.log(e);
       }
