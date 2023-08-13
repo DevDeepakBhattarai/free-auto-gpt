@@ -22,12 +22,12 @@ async function run() {
     let finalPrompt = promptTemplate(templatePrompt, replacements);
     const questionString = await askGPT(page, finalPrompt);
     writeFileSync("questions.txt", questionString);
-    let questions;
+    let plan;
     try {
-      questions = JSON.parse(`${questionString}`) as Array<string>;
-      console.log(questions);
+      plan = JSON.parse(`${questionString}`) as { goals: string[] };
+      console.log(plan);
       try {
-        await recursiveAnswering(page, questions, userPrompt);
+        await recursiveAnswering(page, plan.goals, userPrompt);
       } catch (e) {
         console.log(e);
       }

@@ -1,7 +1,7 @@
-import { Page } from "puppeteer";
+import { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 
-export async function openBrowser(): Promise<Page> {
+export async function openBrowser(): Promise<[Page, Browser]> {
   const browser = await puppeteer.launch({
     headless: false,
   });
@@ -12,5 +12,5 @@ export async function openBrowser(): Promise<Page> {
     "Accept-Language": "en-UK,en",
   });
   await page.goto("https://www.google.com");
-  return page;
+  return [page, browser];
 }

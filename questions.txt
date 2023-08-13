@@ -1,1 +1,6 @@
-["Open browser", "Search 'Explain the useAnimate hook of framer motion with examples'", "Goto 'url'", "Read and understand the content", "Write python code 'Python code to demonstrate the useAnimate hook'", "Execute", "Display the animation example", "Summarize 'Key points about useAnimate hook of framer motion'", "Display the summary"]
+{
+"goals": [
+"Retrieve the most current and accurate information about the current president of Nepal.",
+"Display the answer to the user."
+]
+}

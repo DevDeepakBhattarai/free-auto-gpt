@@ -32,9 +32,7 @@ export function observeTheMainMessageContainer() {
   function observe(mutation: MutationRecord[]) {
     if (mutation[1]?.addedNodes?.[0] && mutation.length === 2) {
       const childToObserve =
-        mutation[1].addedNodes[0].firstChild?.lastChild?.firstChild?.firstChild
-          ?.firstChild;
-
+        mutation[1].addedNodes[0].firstChild?.lastChild?.firstChild?.firstChild;
       const wrapperObserver = new MutationObserver((mutation) => {
         if (mutation[0].type === "attributes") {
           console.log((mutation[0].target as HTMLDivElement).innerText);
@@ -42,7 +40,10 @@ export function observeTheMainMessageContainer() {
       });
 
       if (childToObserve) {
-        wrapperObserver.observe(childToObserve, { attributes: true });
+        wrapperObserver.observe(childToObserve, {
+          attributes: true,
+          subtree: true,
+        });
       }
     }
   }
