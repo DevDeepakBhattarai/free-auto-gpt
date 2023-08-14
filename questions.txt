@@ -1,6 +1,9 @@
 {
 "goals": [
-"Retrieve the most current and accurate information about the current president of Nepal.",
-"Display the answer to the user."
+"Research and gather information about the useAnimate hook of Framer Motion",
+"Identify key features and functionalities of the useAnimate hook",
+"Create illustrative examples showcasing the different use cases of the useAnimate hook",
+"Compile the gathered information and examples into a coherent explanation",
+"Present the explanation and examples to the user"
 ]
 }

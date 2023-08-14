@@ -47,6 +47,7 @@ export async function recursiveAnswering(
             ? JSON.stringify(completedTasksForCurrentGoal)
             : "None",
       };
+      await sleep(100);
       const prompt = promptTemplate(templatePrompt, replacements);
       await goToPlanPage(indexOfThePlanPage, gptPage);
       await sleep(500);

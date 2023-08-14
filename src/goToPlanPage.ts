@@ -3,6 +3,11 @@ import { sidebarSelector } from "./sidebarSelector";
 import { observeTheMainMessageContainer } from "./initializeApp";
 
 export async function goToPlanPage(index: number, gptPage: Page) {
-  await gptPage.click(sidebarSelector(index));
+  try {
+    await gptPage.click(sidebarSelector(index));
+  } catch (e) {
+    console.log(e);
+    console.log("Cannot click on the sidebar");
+  }
   await gptPage.evaluate(observeTheMainMessageContainer);
 }

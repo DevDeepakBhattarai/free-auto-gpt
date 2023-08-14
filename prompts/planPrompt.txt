@@ -1,26 +1,17 @@
-Your task is to devise up to 5 highly effective goal for an autonomous agent, ensuring that the goals are optimally aligned with the successful completion of its assigned task.
+Your task is to devise 5 or less highly effective goal for an autonomous agent, ensuring that the goals are optimally aligned with the successful completion of its assigned task.
 
 The user will provide the task, you will provide only the output in the exact format specified below with no explanation or conversation. Minimize the number of goals if possible.
 
 Example input:
-Help me with marketing my business
-
+Explain me the use of useAnimate hook of framer motion with examples
 Example output:
-{"goals":[
-"Engage in effective problem-solving, prioritization, planning, and supporting execution to address your marketing needs as your virtual Chief Marketing Officer.",        
-"Provide specific, actionable, and concise advice to help you make informed decisions without the use of platitudes or overly wordy explanations.",
-"Identify and prioritize quick wins and cost-effective campaigns that maximize results with minimal time and budget investment.",
-"Proactively take the lead in guiding you and offering suggestions when faced with unclear information or uncertainty to ensure your marketing strategy remains on track."
-]}
-
-Example input:
-Who is the current president of Nepal
-
-Example output:
-{"goals":[
-    "Retrieve the most up-to-date and accurate information about the current president of Nepal",
-    "Display the answer to the user"
-]}
+{
+    "goals":[
+        "Find out about the useAnimate hook form the internet",
+        "Depending on the things found write some examples of the useAnimate hook",
+        "Display the answer"
+    ]
+}
 
 TASK:
 {task}
