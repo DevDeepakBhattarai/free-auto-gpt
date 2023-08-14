@@ -34,7 +34,10 @@ export function observeTheMainMessageContainer() {
       const childToObserve =
         mutation[1].addedNodes[0].firstChild?.lastChild?.firstChild?.firstChild;
       const wrapperObserver = new MutationObserver((mutation) => {
-        if (mutation[0].type === "attributes") {
+        if (
+          mutation[0].type === "attributes" &&
+          mutation[0].oldValue?.includes("result-streaming")
+        ) {
           console.log((mutation[0].target as HTMLDivElement).innerText);
         }
       });
@@ -43,6 +46,7 @@ export function observeTheMainMessageContainer() {
         wrapperObserver.observe(childToObserve, {
           attributes: true,
           subtree: true,
+          attributeOldValue: true,
         });
       }
     }

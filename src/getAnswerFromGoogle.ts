@@ -31,11 +31,16 @@ export async function getAnswerFormGoogle(page: Page, gptPage: Page) {
     gptPage: Page
   ) {
     if ("dataVed" in response) {
-      await page.click(`[data-ved="${response.dataVed}"]`);
-      await page.waitForNavigation();
-      await sleep(2000);
-      const summary = await getWebPageSummary(page, gptPage);
-      return summary;
+      try {
+        await page.click(`[data-ved="${response.dataVed}"]`);
+        await page.waitForNavigation();
+        await sleep(2000);
+        const summary = await getWebPageSummary(page, gptPage);
+        return summary;
+      } catch (e) {
+        console.log(e);
+        return "";
+      }
     }
 
     if ("answer" in response) {
@@ -61,5 +66,6 @@ async function getPageContentForInitialSearch(page: Page) {
 
 async function getWebPageSummary(page: Page, gptPage: Page) {
   const pageContent = await getMainContentFromTheWeb(page);
+  if (pageContent === "") return "";
   return summarize(pageContent, gptPage);
 }

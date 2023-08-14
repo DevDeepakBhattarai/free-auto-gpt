@@ -36,13 +36,14 @@ export async function recursiveAnswering(gptPage: Page, userTask: string) {
       completed:
         completedTasks.length > 0 ? JSON.stringify(completedTasks) : "None",
     };
-    await sleep(100);
+    await sleep(1000);
     const prompt = promptTemplate(templatePrompt, replacements);
-    await goToPlanPage(indexOfThePlanPage, gptPage);
-    await sleep(500);
+    if (indexOfThePlanPage > 1) await goToPlanPage(indexOfThePlanPage, gptPage);
+    await sleep(1000);
     stepToFollow = await askGPT(gptPage, prompt);
     if (stepToFollow.startsWith('"')) stepToFollow = stepToFollow.slice(1, -1);
 
+    console.log(stepToFollow);
     if (stepToFollow.startsWith("Search")) {
       var queryString = stepToFollow.split("Search ")[1].slice(1, -1);
       await page.goto("https://www.google.com");
@@ -124,24 +125,20 @@ export async function recursiveAnswering(gptPage: Page, userTask: string) {
       appendFileSync("run.py", extractedCode);
       try {
         const stdout = execSync("python run.py");
-        return stdout.toString();
+        console.log(stdout.toString());
       } catch {
         console.log("Something went wrong during the execution of program");
-        return;
       }
-    }
-
-    if (stepToFollow.startsWith("Display") || stepToFollow.startsWith("Done")) {
-      let context = "";
-      for (const response of completedTasks) {
-        const key = Object.keys(response)[0];
-        context += `${key}: \n ${response[key]} \n`;
-      }
-      const finalAnswer = await getFinalAnswer(gptPage, userTask, context);
-      console.log(finalAnswer);
-      writeFileSync("answer.txt", finalAnswer);
     }
   }
+  let context = "";
+  for (const response of completedTasks) {
+    const key = Object.keys(response)[0];
+    context += `${key}: \n ${response[key]} \n`;
+  }
+  const finalAnswer = await getFinalAnswer(gptPage, userTask, context);
+  console.log(finalAnswer);
+  writeFileSync("answer.txt", finalAnswer);
   await browser.close();
 }
 
