@@ -23,7 +23,7 @@ git clone https://github.com/DevDeepakBhattarai/free-auto-gpt.git
 2. Navigate to the project directory:
 
 ```bash
-cd auto-gpt-puppeteer
+cd free-auto-gpt
 ```
 
 3. Install the project dependencies:
