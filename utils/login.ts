@@ -1,5 +1,5 @@
 import { Page } from "puppeteer";
-import { sleep } from "../utils/sleep";
+import { sleep } from "./sleep";
 import { config } from "dotenv";
 config();
 

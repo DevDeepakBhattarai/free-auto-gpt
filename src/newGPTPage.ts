@@ -1,5 +1,5 @@
 import { Page } from "puppeteer";
-import { observeTheMainMessageContainer } from "./initializeApp";
+import { observeTheMainMessageContainer } from "../lib/initializeApp";
 import { sleep } from "../utils/sleep";
 export async function newGPTPage(page: Page) {
   await page.click(

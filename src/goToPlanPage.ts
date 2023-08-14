@@ -1,6 +1,6 @@
 import { Page } from "puppeteer";
 import { sidebarSelector } from "./sidebarSelector";
-import { observeTheMainMessageContainer } from "./initializeApp";
+import { observeTheMainMessageContainer } from "../lib/initializeApp";
 
 export async function goToPlanPage(index: number, gptPage: Page) {
   try {

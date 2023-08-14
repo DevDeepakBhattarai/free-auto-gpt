@@ -1,11 +1,11 @@
 import { sleep } from "../utils/sleep";
 import { writeFileSync } from "fs";
-import { closeRadixModal } from "./closeRadix";
+import { closeRadixModal } from "../src/closeRadix";
 import puppeteer from "puppeteer-extra";
 import extraStealth from "puppeteer-extra-plugin-stealth";
 import captcha from "puppeteer-extra-plugin-recaptcha";
-import { setCookies } from "./setCookies";
-import { Login } from "./login";
+import { setCookies } from "../utils/setCookies";
+import { Login } from "../utils/login";
 import { Browser, Page } from "puppeteer";
 
 export async function initializeApp(

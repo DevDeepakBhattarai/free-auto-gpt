@@ -1,3 +1,4 @@
-Write the short summary of the following text:
+Write the short summary of the following text. Include examples if there are any in the text. Do not miss the important detail from the text.
 
+TEXT:
 {context}
