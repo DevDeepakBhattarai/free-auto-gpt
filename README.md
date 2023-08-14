@@ -1,63 +1,55 @@
-# Chat with your PDF file
+# Free Auto GPT with Puppeteer
 
-## Clone the repo
+Auto GPT is a Node.js application that utilizes Puppeteer to automate the usage of the GPT model for generating text. This project aims to streamline the process of interacting with the GPT model and generating text based on specific prompts.
 
-**Note**:
+## Features
 
-1. If you do not have `git` in your pc. Install `git`
-1. You will need `Node js` and `python` installed in your to use this app
+- Automates the interaction with the GPT model using Puppeteer.
+- Generates text based on user-defined prompts.
+- Easy setup and usage.
 
-#### Run the command below in `powershell` or `bash` in the directory you want this app in.
+## Prerequisites
 
+- Node.js, npm and python should be installed on your system. You can download them from [https://nodejs.org](https://nodejs.org/) and [https://www.python.org/downloads](https://www.python.org/downloads/) respectively
+
+## Installation
+
+1. Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/DevDeepakBhattarai/free-auto-gpt.git
 ```
-git clone https://github.com/DevDeepakBhattarai/ask-your-pdf.git
+
+2. Navigate to the project directory:
+
+```bash
+cd free-auto-gpt
 ```
 
-### **Updating Environment Variables for the Express and Flask Apps**
+3. Install the project dependencies:
 
-Thank you for using our Express and Flask apps! Before you get started, please follow the instructions below to set up the necessary environment variables for both apps.
+```bash
+npm install
+```
 
-## **1. For the Express App (JavaScript - js/):**
+# Usage:
 
-In the `js` folder, you will find our Express app. To run it successfully, you need to update the `.env.example` file with your specific configurations. Here's how you can do it:
+1. In the project directory, run the application using:
 
-1. Locate the file named `.env.example` in the `js` folder.
-1. Rename it to `.env`
-1. Open the `.env` file using a text editor.
-1. Find the following variables:
-   - `EMAIL`: Replace this with your chat gpt email address.
-   - `PASSWORD`: Replace this with your chat gpt password.
+```bash
+npm start
+```
 
-Make sure to save the changes after updating the variables. The Express app will now be able to use the values you provided in the `.env` file.
+2. The application will prompt you to enter the text you want to use as a prompt for the GPT model.
+3. After entering the prompt, the application will use Puppeteer to interact with the GPT model and generate text based on the provided prompt.
+4. The generated text will be displayed in the console and be saved in the `answer.txt` file in the root of the project.
 
-## **2. For the Flask App (Python - py/):**
+# Contributing:
 
-In the `py` folder, you will find our Flask app. To set up the environment for this app, follow these steps:
+Contributions are welcome! If you find any issues or have suggestions, feel free to open an issue or create a pull request.
 
-1. Navigate to the `py` folder.
-2. Look for the `.env.example` file and rename it to `.env` ;open it with a text editor.
-3. You will find the following variables in the `.env` file:
-   - `PINECONE_API_KEY`: Replace this with your Pinecone API key, which is required for certain functionalities in the app.
-   - `PINECONE_ENVIRONMENT`: Replace this with the appropriate environment setting for your Pinecone account.
+# License:
 
-Once you have updated the values for these variables, save the changes to the `.env` file.
+This project is licensed under the MIT License
 
-### **For Pinecone api key**
-
-1. Goto [Pinecone](https://app.pinecone.io/)
-1. Login to the site.
-1. Click on the api key in the left side of the screen
-1. Copy the api key and environment
-1. Paste it in the `.env` folder in `./py/`
-
-With these environment variables set up in both apps, you are now ready to run the Express and Flask apps with your custom configurations.
-
-## Running the Apps:
-
-1. Run the `install.bat` file which is provided
-2. Once the installation is complete run the `run.bat`
-3. Once both the apps are running navigate to `http://localhost:5000` to use the app
-
-#### Note:
-
-If the apps stops working just delete the `cookies.json` in the `js` directory and it will start working again (hopefully)
+**Note**: This application is built for educational and experimental purposes. Use of the GPT model and its APIs may be subject to terms and conditions of the service provider. Ensure that you comply with all relevant terms and policies when using this application.
