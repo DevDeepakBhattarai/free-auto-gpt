@@ -42,14 +42,18 @@ export async function recursiveAnswering(
         await page.type("#APjFqb", queryString);
         await page.keyboard.press("Enter");
         await sleep(2000);
-        const answer = await getAnswerFormGoogle(page, gptPage);
+        const answer = await getAnswerFormGoogle(page, gptPage, userTask);
         previousResponses.push({ Search: answer });
       }
     }
 
     if (step.startsWith("Goto") && page) {
       const url = step.split("Goto ")[1].slice(1, -1);
-      await page.goto(url);
+      try {
+        await page.goto(url);
+      } catch {
+        continue;
+      }
       await sleep(1000);
       pageOrFileContent = await getMainContentFromTheWeb(page);
     }
@@ -73,7 +77,11 @@ export async function recursiveAnswering(
       }
     }
 
-    if (step.startsWith("Summarize") && pageOrFileContent) {
+    if (
+      step.startsWith("Summarize") &&
+      pageOrFileContent &&
+      pageOrFileContent !== ""
+    ) {
       console.log(pageOrFileContent.length);
       const summary = await summarize(pageOrFileContent, gptPage);
       previousResponses.push({ Summary: summary });
@@ -107,6 +115,7 @@ export async function recursiveAnswering(
     }
 
     if (step.startsWith("Display")) {
+      await newGPTPage(gptPage);
       let context = "";
       for (const response of previousResponses) {
         const key = Object.keys(response)[0];
@@ -120,8 +129,9 @@ export async function recursiveAnswering(
   }
 }
 
-async function getAnswerFormGoogle(page: Page, gptPage: Page) {
-  const html = await getPageContentForInitialSearch(page);
+async function getAnswerFormGoogle(page: Page, gptPage: Page, task: string) {
+  let html = await getPageContentForInitialSearch(page);
+  html += `QUESTION:\n${task}`;
   const templatePrompt = readFileSync("prompts/htmlPrompt.txt").toString();
   const replacements = {
     html: html,
@@ -179,7 +189,7 @@ async function getPageContentForInitialSearch(page: Page) {
     return document.body.innerHTML;
   });
 
-  return "QUESTION: " + title + "\n\n" + "HTML" + "\n" + parseLinks(html);
+  return "SEARCH TERM: " + title + "\n\n" + "HTML" + "\n" + parseLinks(html);
 }
 
 async function getMainContentFromTheWeb(page: Page): Promise<string> {

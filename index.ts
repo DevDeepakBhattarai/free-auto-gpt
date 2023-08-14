@@ -15,7 +15,7 @@ async function run() {
     if (userPrompt == ":q") break;
 
     const replacements = {
-      task: userPrompt,
+      problem: userPrompt,
     };
 
     const templatePrompt = readFileSync("prompts/planPrompt.txt").toString();

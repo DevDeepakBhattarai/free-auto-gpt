@@ -1,1 +1,1 @@
-["Open browser", "Search 'Explain the useAnimate hook of framer motion with examples'", "Goto 'url'", "Read and understand the content", "Write python code 'Python code to demonstrate the useAnimate hook'", "Execute", "Display the animation example", "Summarize 'Key points about useAnimate hook of framer motion'", "Display the summary"]
+["Open browser", "Search 'Langchain usage examples'", "Goto 'https://langchain-example.com'", "Summarize 'Explanation and example of using Langchain'", "Display"]
